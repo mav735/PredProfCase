@@ -17,6 +17,8 @@ function Cell({ room, light, onClick }) {
 function TableDate() {
     const [date, setDate] = useState(""); // State to store selected date
     const [data, setData] = useState([]); // State to store fetched data
+    const [list, setlst] = useState([]); // State to store fetched data
+    const [le, setle] = useState(0); // State to store fetched data
 
     useEffect(() => {
         if (date) {
@@ -33,6 +35,9 @@ function TableDate() {
                 .then(data => {
                     // Access the element at index 1
                     const initialData = data[1];
+                     setle(data[4]);
+                    setlst(data[5]);
+                    console.log(data[5]);
                     console.log(initialData); // Log the element at index 1
                     setData(initialData); // Set state with the fetched data
                 })
@@ -65,7 +70,7 @@ function TableDate() {
                         </div>
                     </div>
                     <div className="row d-flex justify-content-center">
-                        <div className="TableForPost col-md-2 col-xl-9 text-center mx-auto">
+                        <div className="TableForPost text-center mx-auto">
                             <form onSubmit={handleSubmit}>
                                 <input
                                     type="date"
@@ -92,6 +97,10 @@ function TableDate() {
                                 </div>
                             ))}
                         </div>
+
+                        <h4>Количество комнат {le}</h4>
+                        <h4>Коменаты с горящим светом {list.map(v => `${v}, `)}</h4>
+
                     </div>
                 </div>
             </section>
