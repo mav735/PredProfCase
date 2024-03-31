@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import json
+from req_api import json_processing
 import requests
 import req_api as req
 from PredProfCase.data import db_session
@@ -29,7 +30,6 @@ def initialize_db():
 def index():
     # 25-01-23 - default
     date = request.args.get('date', DEFAULT_DATE)
-
     return jsonify(req.json_processing(json.loads(get_date(date).values)))
 
 
@@ -42,4 +42,5 @@ def post():
 if __name__ == '__main__':
     db_session.global_init("data/data.db")
     initialize_db()
+    print(json_processing(json.loads(get_date('25-01-23').values)))
     app.run(debug=True, port=5000)
