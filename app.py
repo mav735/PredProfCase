@@ -2,7 +2,9 @@ from flask import Flask, request, jsonify
 import json
 import requests
 import req_api as req
+from PredProfCase.data import db_session
 from data.data_base_requests import *
+
 app = Flask(__name__)
 DEFAULT_DATE = None
 
@@ -29,6 +31,12 @@ def index():
     date = request.args.get('date', DEFAULT_DATE)
 
     return jsonify(req.json_processing(json.loads(get_date(date).values)))
+
+
+@app.route('/post')
+def post():
+    info = request.json()
+    print(info)
 
 
 if __name__ == '__main__':

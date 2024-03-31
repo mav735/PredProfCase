@@ -17,31 +17,36 @@ function RoomInput({ onSubmit }) {
     const [numFloors, setNumFloors] = useState('');
     const [numRooms, setNumRooms] = useState('');
     const [numWindows, setNumWindows] = useState('');
-    const [roomWindows, setRoomWindows] = useState([]);
+    const [date, setDate] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         const windowsArray = numWindows.split(',').map((window) => parseInt(window.trim()));
 
-        const data = {};
-        for (let floor = 1; floor <= parseInt(numFloors); floor++) {
+        const data = [];
+        for (let floor = parseInt(numFloors); floor >= 1; floor--) {
             const floorData = [];
             for (let room = 1; room <= parseInt(numRooms); room++) {
                 for (let window = 1; window <= windowsArray[room - 1]; window++) {
                     floorData.push({ light: 0, room: room + (floor - 1) * numRooms });
                 }
             }
-            data[`floor_${floor}`] = floorData;
+            data.push({ [`floor_${floor}`]: floorData });
+
         }
 
-        onSubmit([data]);
+        onSubmit([{...Object.assign({}, ...data) }, date]);
     };
 
     return (
         <div>
             <h2>Enter Room Information</h2>
             <form onSubmit={handleSubmit}>
+                <div>
+                    <label htmlFor="date">Date:</label>
+                    <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                </div>
                 <div>
                     <label htmlFor="numFloors">Number of Floors:</label>
                     <input type="number" id="numFloors" value={numFloors} onChange={(e) => setNumFloors(e.target.value)} />
@@ -60,38 +65,60 @@ function RoomInput({ onSubmit }) {
     );
 }
 
-function TableItem({ initialData }) {
+function TableItem({ initialData, date }) {
     const [data, setData] = useState(initialData);
 
     const handleCellClick = (floorIndex, rowIndex, cellIndex) => {
         let newData = [...data]
-        newData[floorIndex][`floor_${rowIndex + 1}`][cellIndex]['light'] = newData[floorIndex][`floor_${rowIndex + 1}`][cellIndex]['light'] === 0 ? 1 : 0
+        let counter = 0;
+        Object.keys(data[0]).map(x => counter += 1)
+        newData[floorIndex][`floor_${counter - rowIndex}`][cellIndex]['light'] = newData[floorIndex][`floor_${counter - rowIndex}`][cellIndex]['light'] === 0 ? 1 : 0
         setData(newData)
     };
 
+    const sendDataToAPI = (data, date) => {
+        // Example API call
+        fetch('https://localhost:5000/post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({"date": date, "floors": data}),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Data sent to API:', data);
+            })
+            .catch(error => {
+                console.error('Error sending data to API:', error);
+            });
+    };
+
     return (
-            <div className="TableForPost col-md-2 col-xl-9 text-center mx-auto">
-                {data.map((floor, floorIndex) => (
-                    <div key={floorIndex} className="floor">
-                        {Object.keys(floor).map((floorName, rowIndex) => (
-                            <div key={rowIndex} className="row">
-                                {floor[floorName].map((cellData, cellIndex) => (
-                                    <Cell
-                                        key={cellIndex}
-                                        room={cellData.room}
-                                        light={cellData.light}
-                                        onClick={() => handleCellClick(floorIndex, rowIndex, cellIndex)}
-                                    />
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </div>
+        <div className="TableForPost col-md-2 col-xl-9 text-center mx-auto">
+            {data.map((floor, floorIndex) => (
+                <div key={floorIndex} className="floor">
+                    {Object.keys(floor).map((floorName, rowIndex) => (
+                        <div key={rowIndex} className="row">
+                            {floor[floorName].map((cellData, cellIndex) => (
+                                <Cell
+                                    key={cellIndex}
+                                    room={cellData.room}
+                                    light={cellData.light}
+                                    onClick={() => handleCellClick(floorIndex, rowIndex, cellIndex)}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            ))}
+            <button onClick={() => sendDataToAPI({data}, {date})}>Send Data to API</button>
+        </div>
     );
 }
 
 function App() {
+
     const handleSubmit = (data) => {
         console.log(data);
         setPage((<div>
@@ -108,7 +135,7 @@ function App() {
                         <RoomInput onSubmit={handleSubmit}/>
                     </div>
                     <div className="row d-flex justify-content-center">
-                        <TableItem initialData={data}></TableItem>
+                        <TableItem initialData={[data[0]]} date={data[1]}></TableItem>
                     </div>
                 </div>
             </section>
