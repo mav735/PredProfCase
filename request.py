@@ -2,6 +2,8 @@ def json_processing(json: dict):
     """
 
     :param json:
+    response received from the API for a request like
+    GET /?day=<day>&month=<month>&<year>
     :return:
     table:
     [
