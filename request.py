@@ -9,7 +9,7 @@ def json_processing(json: dict):
     response received from the API for a request like
     GET /?day=<day>&month=<month>&<year>
     :return:
-    date: 03.12.2012
+    date: 03-12-2012
     table:
     {
         "floor_2": [{"room": 3, "light": 0}, {"room": 3, "light": 0}, {"room": 4, "light": 1}],
@@ -22,7 +22,7 @@ def json_processing(json: dict):
     roomsWithLightsOn: [1, 4]
     """
 
-    date = datetime.datetime.fromtimestamp(json["date"]["data"], datetime.UTC).strftime("%d.%m.%Y")
+    date = datetime.datetime.fromtimestamp(json["date"]["data"], datetime.UTC).strftime("%d-%m-%Y")
 
     numberOfRoomsOnFloor = json["rooms_count"]["data"]
 
@@ -63,7 +63,7 @@ def json_processing(json: dict):
 
 
 if __name__ == '__main__':
-    true, false = True, False
+    true, false = 1, 0
     pprint(
         json_processing(
             {
