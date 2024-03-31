@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './dsg.css';
 import '../NavigationBar/Navigation'
 import Navigation from "../NavigationBar/Navigation";
@@ -13,39 +13,49 @@ function Cell({ room, light, onClick }) {
     );
 }
 
-function TableDate() {
-    const initialData = [
-        {
-            'floor_1': [
-                {'light': 0, 'room': 1},
-                {'light': 1, 'room': 1},
-                {'light': 0, 'room': 1},
-                {'light': 1, 'room': 2},
-                {'light': 0, 'room': 2},
-                {'light': 0, 'room': 3}
-            ],
-            'floor_2': [
-                {'light': 1, 'room': 4},
-                {'light': 0, 'room': 4},
-                {'light': 1, 'room': 4},
-                {'light': 0, 'room': 5},
-                {'light': 0, 'room': 5},
-                {'light': 1, 'room': 6}
-            ]
-        }
-    ];
 
-    const [data, setData] = useState(initialData);
+function TableDate() {
+    const [date, setDate] = useState(""); // State to store selected date
+    const [data, setData] = useState([]); // State to store fetched data
+
+    useEffect(() => {
+        if (date) {
+            // Fetch data from the URL based on selected date
+            fetch(`http://127.0.0.1:5000/?date=${date}`)
+                .then(response => {
+                    // Check if response is successful (status code 200)
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Parse response as JSON
+                    return response.json();
+                })
+                .then(data => {
+                    // Access the element at index 1
+                    const initialData = data[1];
+                    console.log(initialData); // Log the element at index 1
+                    setData(initialData); // Set state with the fetched data
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        }
+    }, [date]); // Execute effect when 'date' state changes
 
     const handleCellClick = (floorIndex, rowIndex, cellIndex) => {
-        let newData = [...data]
-        newData[floorIndex][`floor_${rowIndex + 1}`][cellIndex]['light'] = newData[floorIndex][`floor_${rowIndex + 1}`][cellIndex]['light'] === 0 ? 1 : 0
-        setData(newData)
+        let newData = [...data];
+        newData[floorIndex][`floor_${rowIndex + 1}`][cellIndex]['light'] = newData[floorIndex][`floor_${rowIndex + 1}`][cellIndex]['light'] === 0 ? 1 : 0;
+        setData(newData);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault(); // Prevent the default form submission behavior
+
     };
 
     return (
         <div>
-            <Navigation/>
+            <Navigation />
             <section className="py-5">
                 <div className="container py-5">
                     <div className="row mb-5">
@@ -56,6 +66,15 @@ function TableDate() {
                     </div>
                     <div className="row d-flex justify-content-center">
                         <div className="TableForPost col-md-2 col-xl-9 text-center mx-auto">
+                            <form onSubmit={handleSubmit}>
+                                <input
+                                    type="date"
+                                    id="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                />
+                                <button type="submit">Submit</button>
+                            </form>
                             {data.map((floor, floorIndex) => (
                                 <div key={floorIndex} className="floor">
                                     {Object.keys(floor).map((floorName, rowIndex) => (
@@ -78,7 +97,6 @@ function TableDate() {
             </section>
             <footer className="bg-primary-gradient"></footer>
         </div>
-
     );
 }
 
