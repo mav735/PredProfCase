@@ -9,12 +9,12 @@ def json_processing(json: dict):
     response received from the API for a request like
     GET ?day=<day>&month=<month>&year=<year>
     :return:
-    date: 03.12.2012
+    date: 03-12-2012
     table:
-    [
-        [{"room": 3, "light": 0}, {"room": 3, "light": 0}, {"room": 4, "light": 1}],
-        [{"room": 1, "light": 0}, {"room": 1, "light": 1}, {"room": 2, "light": 0}],
-    ]
+    {
+        "floor_2": [{"room": 3, "light": 0}, {"room": 3, "light": 0}, {"room": 4, "light": 1}],
+        "floor_1": [{"room": 1, "light": 0}, {"room": 1, "light": 1}, {"room": 2, "light": 0}],
+    }
     numberOfRoomsOnFloor: 2
     windowsOnTheFloor: [2, 1]
 
@@ -22,7 +22,7 @@ def json_processing(json: dict):
     roomsWithLightsOn: [1, 4]
     """
 
-    date = datetime.datetime.fromtimestamp(json["date"]["data"], datetime.UTC).strftime("%d.%m.%Y")
+    date = datetime.datetime.fromtimestamp(json["date"]["data"], datetime.UTC).strftime("%d-%m-%Y")
 
     numberOfRoomsOnFloor = json["rooms_count"]["data"]
 
@@ -32,18 +32,20 @@ def json_processing(json: dict):
 
     windows = json["windows"]["data"]
 
-    table = [
-        [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]
-        for _ in range(len(windows))
-    ]
+    table = {
+        f"floor_{len(windows) - i}": [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]
+        for i in range(len(windows))
+    }
     rooms = 1
     for floor in range(len(windows) - 1, -1, -1):
         window = 0
 
         for room in windowsOnTheFloor:
             for window_ in range(room):
-                table[floor][window]["room"] = rooms
-                table[floor][window]["light"] = windows[f"floor_{len(windows) - floor}"][window]
+                table[f"floor_{len(windows) - floor}"][window]["room"] = rooms
+                table[f"floor_{len(windows) - floor}"][window]["light"] = windows[
+                    f"floor_{len(windows) - floor}"
+                ][window]
                 window += 1
             rooms += 1
 
@@ -61,9 +63,9 @@ def json_processing(json: dict):
 
 
 if __name__ == '__main__':
-    true, false = True, False
-    pprint(
-        json_processing(
+    true, false = 1, 0
+    print(
+        *json_processing(
             {
                 "date": {
                     "data": 1674594000,
@@ -119,5 +121,6 @@ if __name__ == '__main__':
                     "description": "Окна по этажам, в которых горит свет"
                 }
             }
-        )
+        ),
+        sep='\n',
     )
