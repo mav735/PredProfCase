@@ -14,3 +14,4 @@ class Date(SqlAlchemyBase, UserMixin, SerializerMixin):
     date = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     count_floors = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     id_floors = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
