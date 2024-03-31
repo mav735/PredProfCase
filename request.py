@@ -1,4 +1,5 @@
 import datetime
+from pprint import pprint
 
 
 def json_processing(json: dict):
@@ -11,8 +12,8 @@ def json_processing(json: dict):
     date: 03.12.2012
     table:
     [
-        [{"room": 3, "light": False}, {"room": 3, "light": False}, {"room": 4, "light": True}],
-        [{"room": 1, "light": False}, {"room": 1, "light": True}, {"room": 2, "light": False}],
+        [{"room": 3, "light": 0}, {"room": 3, "light": 0}, {"room": 4, "light": 1}],
+        [{"room": 1, "light": 0}, {"room": 1, "light": 1}, {"room": 2, "light": 0}],
     ]
     numberOfRoomsOnFloor: 2
     windowsOnTheFloor: [2, 1]
@@ -20,3 +21,103 @@ def json_processing(json: dict):
     numberOfRoomsInWhichTheLightIsOn: 2
     roomsWithLightsOn: [1, 4]
     """
+
+    date = datetime.datetime.fromtimestamp(json["date"]["data"], datetime.UTC).strftime("%d.%m.%Y")
+
+    numberOfRoomsOnFloor = json["rooms_count"]["data"]
+
+    windowsOnTheFloor = json["windows_for_room"]["data"]
+
+    windowsOnTheFloorSum = sum(windowsOnTheFloor)
+
+    windows = json["windows"]["data"]
+
+    table = [
+        [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]
+        for _ in range(len(windows))
+    ]
+    rooms = 1
+    for floor in range(len(windows) - 1, -1, -1):
+        window = 0
+
+        for room in windowsOnTheFloor:
+            for window_ in range(room):
+                table[floor][window]["room"] = rooms
+                table[floor][window]["light"] = windows[f"floor_{len(windows) - floor}"][window]
+                window += 1
+            rooms += 1
+
+    numberOfRoomsInWhichTheLightIsOn = 0
+    roomsWithLightsOn = []
+
+    return (
+        date,
+        table,
+        numberOfRoomsOnFloor,
+        windowsOnTheFloor,
+        numberOfRoomsInWhichTheLightIsOn,
+        roomsWithLightsOn,
+    )
+
+
+if __name__ == '__main__':
+    true, false = True, False
+    pprint(
+        json_processing(
+            {
+                "date": {
+                    "data": 1674594000,
+                    "description": "Татьянин день"
+                },
+                "rooms_count": {
+                    "data": 3,
+                    "description": "Количество комнат на этаже"
+                },
+                "windows_for_room": {
+                    "data": [
+                        3,
+                        2,
+                        1
+                    ],
+                    "description": "Количество окон в каждой из комнат на этаже слева направо"
+                },
+                "windows": {
+                    "data": {
+                        "floor_1": [
+                            false,
+                            true,
+                            false,
+                            true,
+                            false,
+                            false
+                        ],
+                        "floor_2": [
+                            true,
+                            false,
+                            true,
+                            false,
+                            false,
+                            true
+                        ],
+                        "floor_3": [
+                            false,
+                            false,
+                            true,
+                            false,
+                            true,
+                            false
+                        ],
+                        "floor_4": [
+                            false,
+                            false,
+                            false,
+                            true,
+                            false,
+                            true
+                        ]
+                    },
+                    "description": "Окна по этажам, в которых горит свет"
+                }
+            }
+        )
+    )
