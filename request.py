@@ -38,6 +38,9 @@ def json_processing(json: dict):
         f"floor_{len(windows) - i}": [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]
         for i in range(len(windows))
     }]
+
+    roomsWithLightsOn = set()
+
     rooms = 1
     for floor in range(len(windows) - 1, -1, -1):
         window = 0
@@ -48,11 +51,15 @@ def json_processing(json: dict):
                 table[0][f"floor_{len(windows) - floor}"][window]["light"] = int(windows[
                     f"floor_{len(windows) - floor}"
                 ][window])
+
+                if table[0][f"floor_{len(windows) - floor}"][window]["light"]:
+                    roomsWithLightsOn.add(rooms)
+
                 window += 1
             rooms += 1
 
-    numberOfRoomsInWhichTheLightIsOn = 0
-    roomsWithLightsOn = []
+    numberOfRoomsInWhichTheLightIsOn = len(roomsWithLightsOn)
+    roomsWithLightsOn = sorted(list(roomsWithLightsOn))
 
     return (
         date,
