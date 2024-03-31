@@ -22,7 +22,9 @@ def json_processing(json: dict):
     roomsWithLightsOn: [1, 4]
     """
 
-    date = datetime.datetime.fromtimestamp(json["date"]["data"], datetime.UTC).strftime("%d-%m-%Y")
+    json = json["message"]
+
+    date = json["date"]["data"]
 
     numberOfRoomsOnFloor = json["flats_count"]["data"]
 
@@ -32,20 +34,20 @@ def json_processing(json: dict):
 
     windows = json["windows"]["data"]
 
-    table = [
-        {f"floor_{len(windows) - i}": [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]}
+    table = [{
+        f"floor_{len(windows) - i}": [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]
         for i in range(len(windows))
-    ]
+    }]
     rooms = 1
     for floor in range(len(windows) - 1, -1, -1):
         window = 0
 
         for room in windowsOnTheFloor:
             for window_ in range(room):
-                table[floor][f"floor_{len(windows) - floor}"][window]["room"] = rooms
-                table[floor][f"floor_{len(windows) - floor}"][window]["light"] = windows[
+                table[0][f"floor_{len(windows) - floor}"][window]["room"] = rooms
+                table[0][f"floor_{len(windows) - floor}"][window]["light"] = int(windows[
                     f"floor_{len(windows) - floor}"
-                ][window]
+                ][window])
                 window += 1
             rooms += 1
 
@@ -63,64 +65,17 @@ def json_processing(json: dict):
 
 
 if __name__ == '__main__':
-    true, false = 1, 0
     print(
         *json_processing(
-            {
-                "date": {
-                    "data": 1674594000,
-                    "description": "Татьянин день"
-                },
-                "rooms_count": {
-                    "data": 3,
-                    "description": "Количество комнат на этаже"
-                },
-                "windows_for_room": {
-                    "data": [
-                        3,
-                        2,
-                        1
-                    ],
-                    "description": "Количество окон в каждой из комнат на этаже слева направо"
-                },
-                "windows": {
-                    "data": {
-                        "floor_1": [
-                            false,
-                            true,
-                            false,
-                            true,
-                            false,
-                            false
-                        ],
-                        "floor_2": [
-                            true,
-                            false,
-                            true,
-                            false,
-                            false,
-                            true
-                        ],
-                        "floor_3": [
-                            false,
-                            false,
-                            true,
-                            false,
-                            true,
-                            false
-                        ],
-                        "floor_4": [
-                            false,
-                            false,
-                            false,
-                            true,
-                            false,
-                            true
-                        ]
-                    },
-                    "description": "Окна по этажам, в которых горит свет"
-                }
-            }
+            {'message': {'date': {'data': '25-01-23', 'description': 'Татьянин день'},
+                         'flats_count': {'data': 3, 'description': 'Количество комнат на этаже'}, 'windows': {
+                    'data': {'floor_1': [False, True, False, True, False, False],
+                             'floor_2': [True, False, True, False, False, True],
+                             'floor_3': [False, False, True, False, True, False],
+                             'floor_4': [False, False, False, True, False, True]},
+                    'description': 'Окна по этажам, в которых горит свет'}, 'windows_for_flat': {'data': [3, 2, 1],
+                                                                                                 'description': 'Количество окон в каждой из комнат на этаже слева направо'}}}
+
         ),
         sep='\n',
     )
