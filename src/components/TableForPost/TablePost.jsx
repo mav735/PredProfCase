@@ -94,31 +94,29 @@ function TableItem({ initialData }) {
 function App() {
     const handleSubmit = (data) => {
         console.log(data);
-
-        return (
-            <div>
-                <Navigation/>
-                <section className="py-5">
-                    <div className="container py-5">
-                        <div className="row mb-5">
-                            <div className="col-md-8 col-xl-6 text-center mx-auto">
-                                <p className="fw-bold text-success mb-2">Добавление данных об активности</p>
-                                <h2 className="fw-bold">Схема окон</h2>
-                            </div>
-                        </div>
-                        <div className="row d-flex justify-content-center">
-                            <RoomInput onSubmit={handleSubmit}/>
-                        </div>
-                        <div className="row d-flex justify-content-center">
-                            <TableItem initialData={data}></TableItem>
+        setPage((<div>
+            <Navigation/>
+            <section className="py-5">
+                <div className="container py-5">
+                    <div className="row mb-5">
+                        <div className="col-md-8 col-xl-6 text-center mx-auto">
+                            <p className="fw-bold text-success mb-2">Добавление данных об активности</p>
+                            <h2 className="fw-bold">Схема окон</h2>
                         </div>
                     </div>
-                </section>
-                <footer className="bg-primary-gradient"></footer>
-            </div>)
-
+                    <div className="row d-flex justify-content-center">
+                        <RoomInput onSubmit={handleSubmit}/>
+                    </div>
+                    <div className="row d-flex justify-content-center">
+                        <TableItem initialData={data}></TableItem>
+                    </div>
+                </div>
+            </section>
+            <footer className="bg-primary-gradient"></footer>
+        </div>))
     };
-    return (
+
+    const [page, setPage] = useState((
         <div>
             <Navigation/>
             <section className="py-5">
@@ -139,7 +137,11 @@ function App() {
             </section>
             <footer className="bg-primary-gradient"></footer>
         </div>
-    );
+    ));
+
+
+
+    return page
 }
 
 export default App;
