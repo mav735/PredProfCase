@@ -1,5 +1,7 @@
 from flask import Flask
 import requests
+
+import request
 from data.data_base_requests import *
 
 app = Flask(__name__)
@@ -18,7 +20,8 @@ def initialize_db():
 
 @app.route('/')
 def index():
-    ...
+    date_data = requests.get("https://olimp.miet.ru/ppo_it_final?day=25&month=01&year=23", headers={'X-Auth-Token': 'ppo_11_30020'}).json()['message']
+    return jsonify(request.json_processing(date_data))
 
 
 if __name__ == '__main__':

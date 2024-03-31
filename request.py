@@ -24,26 +24,26 @@ def json_processing(json: dict):
 
     date = datetime.datetime.fromtimestamp(json["date"]["data"], datetime.UTC).strftime("%d-%m-%Y")
 
-    numberOfRoomsOnFloor = json["rooms_count"]["data"]
+    numberOfRoomsOnFloor = json["flats_count"]["data"]
 
-    windowsOnTheFloor = json["windows_for_room"]["data"]
+    windowsOnTheFloor = json["windows_for_flat"]["data"]
 
     windowsOnTheFloorSum = sum(windowsOnTheFloor)
 
     windows = json["windows"]["data"]
 
-    table = {
-        f"floor_{len(windows) - i}": [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]
+    table = [
+        {f"floor_{len(windows) - i}": [{"room": 0, "light": 0} for _ in range(windowsOnTheFloorSum)]}
         for i in range(len(windows))
-    }
+    ]
     rooms = 1
     for floor in range(len(windows) - 1, -1, -1):
         window = 0
 
         for room in windowsOnTheFloor:
             for window_ in range(room):
-                table[f"floor_{len(windows) - floor}"][window]["room"] = rooms
-                table[f"floor_{len(windows) - floor}"][window]["light"] = windows[
+                table[floor][f"floor_{len(windows) - floor}"][window]["room"] = rooms
+                table[floor][f"floor_{len(windows) - floor}"][window]["light"] = windows[
                     f"floor_{len(windows) - floor}"
                 ][window]
                 window += 1
