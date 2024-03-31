@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import '../TableByDate/dsg.css';
 import Navigation from "../NavigationBar/Navigation";
-import data from "bootstrap/js/src/dom/data";
+import {useNavigate} from "react-router-dom";
+
+
 
 function Cell({ room, light, onClick }) {
     const cellColor = light === 1 ? 'yellow' : 'white';
@@ -67,6 +69,7 @@ function RoomInput({ onSubmit }) {
 
 function TableItem({ initialData, date }) {
     const [data, setData] = useState(initialData);
+    const navigate = useNavigate()
 
     const handleCellClick = (floorIndex, rowIndex, cellIndex) => {
         let newData = [...data]
@@ -76,22 +79,13 @@ function TableItem({ initialData, date }) {
         setData(newData)
     };
 
+
     const sendDataToAPI = (data, date) => {
         // Example API call
-        fetch('https://localhost:5000/post', {
+        fetch('127.0.0.1:5000/post', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({"date": date, "floors": data}),
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Data sent to API:', data);
-            })
-            .catch(error => {
-                console.error('Error sending data to API:', error);
-            });
+            body: JSON.stringify(data),
+        }).then(() => navigate(0))
     };
 
     return (

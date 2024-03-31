@@ -33,7 +33,7 @@ def index():
     return jsonify(req.json_processing(json.loads(get_date(date).values)))
 
 
-@app.route('/post')
+@app.route('/post', methods=['POST'])
 def post():
     info = request.json()
     print(info)
