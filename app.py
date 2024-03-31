@@ -1,12 +1,8 @@
+from flask import Flask, request, jsonify
 import json
-
-from flask import Flask, jsonify
-from flask import Flask, request
 import requests
-
-import request as req
+import req_api as req
 from data.data_base_requests import *
-
 app = Flask(__name__)
 
 
@@ -17,7 +13,6 @@ def initialize_db():
         date_data = requests.get(f'https://olimp.miet.ru/ppo_it_final?day={date[0]}&month={date[1]}&year={date[2]}',
                                  headers={'X-Auth-Token': 'ppo_11_30020'}).json()
         date_data['message']['date']['data'] = i
-        print(date_data)
         if get_date(i) is None:
             add(i, str(date_data).replace(' ', '').replace("True", "1").replace("False", "0").replace("'", '"'))
 
@@ -25,7 +20,6 @@ def initialize_db():
 @app.route('/')
 def index():
     date = request.args.get('date', '25-01-23')
-
     return jsonify(req.json_processing(json.loads(get_date(date).values)))
 
 
