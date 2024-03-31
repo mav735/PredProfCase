@@ -1,12 +1,12 @@
 from flask import Flask, request, jsonify
 import json
-from req_api import json_processing
 import requests
 import req_api as req
-from PredProfCase.data import db_session
 from data.data_base_requests import *
-
+from flask_cors import CORS, cross_origin
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 DEFAULT_DATE = None
 
 
@@ -27,9 +27,12 @@ def initialize_db():
 
 
 @app.route('/')
+@cross_origin()
 def index():
     # 25-01-23 - default
     date = request.args.get('date', DEFAULT_DATE)
+    date = date.split('-')[2] + '-' + date.split('-')[1] + '-' + date.split('-')[0][2:4]
+    print(date)
     return jsonify(req.json_processing(json.loads(get_date(date).values)))
 
 
